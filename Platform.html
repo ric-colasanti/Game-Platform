@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+   Platform.html
+   
+   Copyright 2020 Unknown <ric@localhost>
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+   MA 02110-1301, USA.
+   
+   
+-->
+
+<head>
+<meta charset="utf-8" />
+<title>Platform</title>
+<meta name="generator" content="Geany 1.36" />
+<style>
+    body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        div {
+            max-width: 640px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        #bg {
+            display: block;
+            margin: 0 auto 16px;
+        }
+</style>
+</head>
+<body>
+    <div>
+        <canvas id="bg" width="340" height="820"></canvas>
+        <button id="btnStart" class="btn btn-default">Start/stop animation</button>
+    </div>
+
+<script>
+    (function() {
+        window.requestAnimationFrame = window.requestAnimationFrame
+                || window.webkitRequestAnimationFrame
+                || window.mozRequestAnimationFrame
+                || function(callback) { window.setTimeout(callback, 1000 / 60); };
+
+        var canvas = document.getElementById('bg');
+        var context = canvas.getContext('2d');
+        var looping = false;
+        var totalSeconds = 0;
+        var xpos1 =0
+        var xpos2 =0
+
+        var img1 = new Image();
+        var img2 = new Image();
+        img1.onload = imageLoaded;
+        img2.src = 'BG2.png'
+        img1.src = 'BG1.png';
+
+        function imageLoaded() {
+            draw1(0);
+            draw2(0)
+
+            var btn = document.getElementById('btnStart');
+            btn.addEventListener('click', function() {
+                startStop();
+            });
+        }
+
+        var lastFrameTime = 0;
+
+        function startStop() {
+            looping = !looping;
+            if (looping) {
+                lastFrameTime = Date.now();
+                requestAnimationFrame(loop);
+            }
+        }
+
+        function loop() {
+            if (!looping) {
+                return;
+            }
+
+            requestAnimationFrame(loop);
+
+            var now = Date.now();
+            var deltaSeconds = (now - lastFrameTime) / 1000;
+            lastFrameTime = now;
+            draw1(deltaSeconds);
+            draw2(deltaSeconds);
+        }
+        function draw1(delta) {
+            totalSeconds += delta;
+            var vx = 10; // the background scrolls with a speed of 100 pixels/sec
+            xpos1 = xpos1 - delta * vx ;
+            offset = xpos1+img1.width-canvas.width
+            //console.log(offset);
+            context.drawImage(img1, xpos1, 0);
+            if(offset<0){
+                context.drawImage(img1, xpos1+img1.width, 0);
+            }
+            if(xpos1+img1.width<0){
+                xpos1=0+xpos1+img1.width;
+            }
+        }
+
+        function draw2(delta) {
+            totalSeconds += delta;
+            var vx = 100; // the background scrolls with a speed of 100 pixels/sec
+            xpos2 = xpos2 - delta * vx ;
+            offset = xpos2+img2.width-canvas.width
+            context.drawImage(img2, xpos2, img1.height-img2.height);
+            if(offset<0){
+                context.drawImage(img2, xpos2+img2.width, img1.height-img2.height);
+            }
+            if(xpos2+img2.width<0){
+                xpos2=0+xpos2+img2.width;
+            }
+        }
+    }());
+    </script>
+
+</body>
+
+</html>
