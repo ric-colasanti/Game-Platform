@@ -48,34 +48,58 @@
 </head>
 <body>
     <div>
-        <canvas id="bg" width="340" height="700"></canvas>
+        <canvas id="bg" width="640" height="700"></canvas>
         <button id="btnStart" class="btn btn-default">Start/stop animation</button>
     </div>
  <script src="js/background.js"></script> 
+ <script src="js/tile.js"></script> 
  <script src="js/resources.js"></script> 
 <script>
     (function() {
+        
         window.requestAnimationFrame = window.requestAnimationFrame
                 || window.webkitRequestAnimationFrame
                 || window.mozRequestAnimationFrame
                 || function(callback) { window.setTimeout(callback, 1000 / 60); };
 
-        var canvas = document.getElementById('bg');
+        var m_canvas = document.getElementById('bg');
+        var canvas = document.createElement('canvas');
+        canvas.width = m_canvas.width;
+        canvas.height = m_canvas.height;
         var context = canvas.getContext('2d');
+        var m_context = m_canvas.getContext('2d');
         var looping = false;
         var totalSeconds = 0;
         var bg1 = null;
         var bg2 = null;
+        var bg3 = [];
+        var bg4 = [];
         
-        var resources = new Resources(['img/BG1.png','img/BG2.png'],imageLoaded)
+        var resources = new Resources(['img/BG1.png','img/BG2.png','img/Tiles/2.png','img/Object/Stone.png'],imageLoaded)
         function imageLoaded(){
             var img1 = resources.imageObjects["BG1"]
             var img2 = resources.imageObjects["BG2"]
+            var img3 = resources.imageObjects["2"]
+            var img4 = resources.imageObjects["Stone"]
+            
+            
+            
             bg1 = new Background(canvas,context,img1,0,10)
             bg2 = new Background(canvas,context,img2,img1.height - img2.height,40)
+            for( i =0; i< 12000; i+=img3.width-1){
+                bg3.push(new Tile(canvas,context,img3,canvas.height - img3.height,i,80))
+            }
+            for( i =0; i< 10; i++){
+                bg4.push(new Tile(canvas,context,img4,bg3[0].yOffset-img4.height,i*400,80))
+            }
             bg1.draw(0)
             bg2.draw(0)
-
+            for( i=0; i<bg3.length;i++){
+                bg3[i].draw(0)
+            }
+            for( i=0; i<bg4.length;i++){
+                bg4[i].draw(0)
+            }
             var btn = document.getElementById('btnStart');
             btn.addEventListener('click', function() {
                 startStop();
@@ -98,13 +122,22 @@
                 return;
             }
 
-            requestAnimationFrame(loop);
-
+            
             var now = Date.now();
             var deltaSeconds = (now - lastFrameTime) / 1000;
-            lastFrameTime = now;
+            
             bg1.draw(deltaSeconds);
             bg2.draw(deltaSeconds);
+            for( i=0; i<bg3.length;i++){
+                bg3[i].draw(deltaSeconds)
+            }
+            for( i=0; i<bg4.length;i++){
+                bg4[i].draw(deltaSeconds)
+            }
+            m_context.drawImage(canvas,0,0);
+            lastFrameTime  = Date.now();
+            requestAnimationFrame(loop);
+
         }
     }());
     </script>
